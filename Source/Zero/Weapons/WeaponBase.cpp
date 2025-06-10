@@ -133,6 +133,8 @@ void AWeaponBase::Fire()
 	FireTimer = RateOfFire;
 	FireStartPoint = OwnerPlayer->GetFireLocation();
 	FireForwardVector = OwnerPlayer->GetFireVector();
+
+	UWorld* const World = GetWorld();
 	
 	for (int8 i = 0; i < BulletOnShoot; i++) // дробовик... может потом...
 	{
@@ -143,26 +145,25 @@ void AWeaponBase::Fire()
 		
 		if (ProjectileClass)
 		{
-			if (UWorld* const World = GetWorld())
+			if (!World) return;
+			
+			/* получение направления через PlayerCameraManager (потом подумаю, чёт сразу не завелась)
+			const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+			const FVector SpawnLocation = SkeletalMeshWeapon_FP->GetComponentLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+			*/
+			const FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(FireForwardVector);
+			const FVector SpawnLocation = SkeletalMeshWeapon_FP->GetComponentLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+
+			FActorSpawnParameters ActorSpawnParams;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+			if (const auto Projectile = World->SpawnActor<AZeroProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams))
 			{
-				/* получение направления через PlayerCameraManager (потом подумаю, чёт сразу не завелась)
-				const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-				const FVector SpawnLocation = SkeletalMeshWeapon_FP->GetComponentLocation() + SpawnRotation.RotateVector(MuzzleOffset);
-				*/
-				const FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(FireForwardVector);
-				const FVector SpawnLocation = SkeletalMeshWeapon_FP->GetComponentLocation() + SpawnRotation.RotateVector(MuzzleOffset);
-
-				FActorSpawnParameters ActorSpawnParams;
-				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-				if (const auto Projectile = World->SpawnActor<AZeroProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams))
-				{
-					Projectile->SetDamage(this->Damage);
-					Projectile->SetOwner(OwnerPlayer);
-				}
-				
-				FireEffect_Multicast(FVector(ForceInitToZero), FVector(ForceInitToZero));
+				Projectile->SetDamage(this->Damage);
+				Projectile->SetOwner(OwnerPlayer);
 			}
+			
+			FireEffect_Multicast(FVector(ForceInitToZero), FVector(ForceInitToZero));
 		}
 		else
 		{
