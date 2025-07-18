@@ -10,6 +10,8 @@
 В сборку игры нужно положить steam_appid.txt примерно туда *"Сборка\Название_игры\Binaries\Win64"*.
 <br/>*(стим будет работать только в шипинг билде)*
 
+*При настройке своего проекта, обрати внимание что GameInstance наследуется от UAdvancedFriendsGameInstance
+
 ### Скачать игру:
 Можно [с облака](https://cloud.mail.ru/public/mfHp/5riKVomkB)
 <br/>👇 Видео геймплея доступно на YouTube 👍
