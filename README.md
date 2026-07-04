@@ -1,6 +1,6 @@
 # Zero Game
 
-Автор: [Absolute Mikhail](https://absolutemikhail.github.io)
+Автор: [Абсолютный Михаил](https://absolutemikhail.github.io)
 
 ## Простой сетевой шутер от первого лица
 Изначально разработано на UE 5.2 и C++
