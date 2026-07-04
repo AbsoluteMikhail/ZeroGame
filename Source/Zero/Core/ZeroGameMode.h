@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2026 Absolute Mikhail
 
 #pragma once
 
@@ -6,7 +6,6 @@
 #include "GameFramework/GameMode.h"
 
 #include "ZeroGameMode.generated.h"
-
 
 
 UCLASS(minimalapi)

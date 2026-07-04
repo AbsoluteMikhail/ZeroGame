@@ -1,9 +1,11 @@
 # Zero Game
 
+Автор: [Absolute Mikhail](https://absolutemikhail.github.io)
+
 ## Простой сетевой шутер от первого лица
 Изначально разработано на UE 5.2 и C++
 <br/>(см. теги на git для выбора коммита с нужной версией)
-<br/>В каждой версии абсолютно точно работает соединение через стим.
+<br/>В каждой версии АБСОЛЮТНО точно работает соединение через стим, я проверял =)
 
 <br/>Начиная с версии 5.6+ нужно перейти на [SteamSockets](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-steam-sockets-in-unreal-engine)
 <br/>Используется плагин [AdvancedSteamSessions](https://vreue4.com/advanced-sessions-binaries)
@@ -29,7 +31,7 @@
 > В Blueprint/AdvancedSessions для LAN также должны совпадать настройки создания и поиска: `Use LAN = true`, а серверная карта должна открываться с параметром `?listen`.
 
 В сборку игры нужно положить steam_appid.txt примерно туда *"Сборка\Название_игры\Binaries\Win64"*.
-<br/>*(стим будет работать только в шипинг билде)*
+<br/>*(стим будет работать только в шипинг билде!)*
 
 *При настройке своего проекта, обрати внимание что GameInstance наследуется от UAdvancedFriendsGameInstance
 

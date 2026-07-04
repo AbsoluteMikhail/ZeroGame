@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2026 Absolute Mikhail
 
 #pragma once
 
@@ -16,6 +16,7 @@ class UInventoryComponent;
 class UHealthComponent;
 class UInputMappingContext;
 class UInputAction;
+
 
 /**
  *  Персонаж игрока

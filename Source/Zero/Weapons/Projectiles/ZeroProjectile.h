@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2026 Absolute Mikhail
 
 #pragma once
 
@@ -7,10 +7,9 @@
 
 #include "ZeroProjectile.generated.h"
 
+
 class USphereComponent;
 class UProjectileMovementComponent;
-
-
 
 UCLASS(config=Game)
 class AZeroProjectile : public AActor

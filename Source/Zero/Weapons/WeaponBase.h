@@ -9,7 +9,6 @@
 #include "WeaponBase.generated.h"
 
 
-
 UCLASS()
 class ZERO_API AWeaponBase : public AActor, public IWeaponInterface
 {

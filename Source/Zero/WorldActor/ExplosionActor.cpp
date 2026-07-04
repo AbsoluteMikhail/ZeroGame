@@ -1,14 +1,15 @@
 // Copyright (c) 2026 Absolute Mikhail
 
-
 #include "ExplosionActor.h"
 
+#include "TimerManager.h"
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "PhysicsEngine/RadialForceComponent.h"
-
 
 
 AExplosionActor::AExplosionActor()
@@ -41,6 +42,13 @@ AExplosionActor::AExplosionActor()
 	//RadialForce->ImpulseStrength(Damage * 10);
 }
 
+void AExplosionActor::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	UpdateRadiusSettings();
+}
+
 float AExplosionActor::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	AActor* DamageCauser)
 {
@@ -53,7 +61,7 @@ float AExplosionActor::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 		{
 			for (AActor* CurrentActor : OverlappingActors) // for each
 			{
-				UGameplayStatics::ApplyDamage(CurrentActor, Damage, EventInstigator, DamageCauser, NULL);
+				UGameplayStatics::ApplyDamage(CurrentActor, Damage, EventInstigator, DamageCauser, nullptr);
 			}
 		}
 		
@@ -66,7 +74,10 @@ float AExplosionActor::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 void AExplosionActor::Explode()
 {
 	SetActive(false);
-	GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &AExplosionActor::Reload, 10.0f, false);
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(ReloadTimer, this, &AExplosionActor::Reload, 10.0f, false);
+	}
 	
 	ExplosionEffect_Multicast();
 }
@@ -103,6 +114,19 @@ void AExplosionActor::SetActive(bool bNewActive)
 {
 	bActive = bNewActive;
 	UpdateActiveState();
+}
+
+void AExplosionActor::UpdateRadiusSettings()
+{
+	if (CollisionSphere)
+	{
+		CollisionSphere->SetSphereRadius(Radius);
+	}
+
+	if (RadialForce)
+	{
+		RadialForce->Radius = Radius;
+	}
 }
 
 void AExplosionActor::UpdateActiveState()

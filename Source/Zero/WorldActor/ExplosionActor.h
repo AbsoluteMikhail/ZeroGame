@@ -12,6 +12,7 @@ class UStaticMeshComponent;
 class USphereComponent;
 class URadialForceComponent;
 
+
 UCLASS()
 class ZERO_API AExplosionActor : public AActor
 {
@@ -36,6 +37,7 @@ public:
 	AExplosionActor();
 
 protected:
+	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
@@ -47,6 +49,7 @@ protected:
 	void Explode();
 	void Reload();
 	void SetActive(bool bNewActive);
+	void UpdateRadiusSettings();
 	void UpdateActiveState();
 	
 public:

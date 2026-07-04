@@ -8,7 +8,6 @@
 #include "WeaponInterface.generated.h"
 
 
-
 UINTERFACE(MinimalAPI)
 class UWeaponInterface : public UInterface
 {

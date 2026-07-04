@@ -8,7 +8,10 @@
 #include "Characters/ZeroCharacter.h"
 #include "Weapons/Projectiles/ZeroProjectile.h"
 #include "Components/AudioComponent.h"
-
+#include "Components/SkeletalMeshComponent.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
 
 
 AWeaponBase::AWeaponBase()
@@ -60,12 +63,12 @@ void AWeaponBase::AttachMeshes_Multicast_Implementation(USkeletalMeshComponent* 
 	FP_MeshForAnim = FP_Mesh;
 	TP_MeshForAnim = TP_Mesh;
 
-	if (SkeletalMeshWeapon_FP)
+	if (SkeletalMeshWeapon_FP && FP_MeshForAnim)
 	{
 		SkeletalMeshWeapon_FP->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 		SkeletalMeshWeapon_FP->AttachToComponent(FP_MeshForAnim, FAttachmentTransformRules::KeepRelativeTransform, SocketName);
 	}
-	if (SkeletalMeshWeapon_TP)
+	if (SkeletalMeshWeapon_TP && TP_MeshForAnim)
 	{
 		SkeletalMeshWeapon_TP->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform); // без детача крашит при завершении игры О_о
 		SkeletalMeshWeapon_TP->AttachToComponent(TP_MeshForAnim, FAttachmentTransformRules::KeepRelativeTransform, SocketName);
@@ -116,12 +119,14 @@ void AWeaponBase::FireTick(float DeltaTime)
 {
 	if (HasAuthority())
 	{
-		if (WeaponFiring && FireTimer < 0.0f)
+		if (WeaponFiring && FireTimer <= 0.0f)
 		{
 			Fire();
 		}
-		else
+		else if (FireTimer > 0.0f)
+		{
 			FireTimer -= DeltaTime;
+		}
 	}
 }
 
@@ -192,7 +197,7 @@ void AWeaponBase::Fire()
 			}
 			else if (Hit.GetActor())
 			{
-				UGameplayStatics::ApplyPointDamage(Hit.GetActor(), Damage, Hit.TraceStart, Hit, PlayerController,OwnerPlayer,NULL);	
+				UGameplayStatics::ApplyPointDamage(Hit.GetActor(), Damage, FireForwardVector, Hit, PlayerController,OwnerPlayer,nullptr);	
 			}
 		}
 	}
@@ -200,6 +205,16 @@ void AWeaponBase::Fire()
 
 void AWeaponBase::FireEffect_Multicast_Implementation(FVector StartPoint, FVector ForwardVector)
 {
-	MyAudioComponent->Play();
-	DrawDebugLine(GetWorld(), StartPoint + ForwardVector * 100, StartPoint + ForwardVector * 10000, FColor::Yellow, false, 0.5f, (uint8)'\000', 5.0f);
+	if (MyAudioComponent)
+	{
+		MyAudioComponent->Play();
+	}
+
+	if (!ForwardVector.IsNearlyZero())
+	{
+		if (UWorld* World = GetWorld())
+		{
+			DrawDebugLine(World, StartPoint + ForwardVector * 100, StartPoint + ForwardVector * 10000, FColor::Yellow, false, 0.5f, 0, 5.0f);
+		}
+	}
 }

@@ -10,6 +10,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, float, Health, float, Damage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDead);
 
+
 /**
  *  Компонент здоровья, содержит жизни игрока.
  *  Сообщает о смерти игрока через диспатчер

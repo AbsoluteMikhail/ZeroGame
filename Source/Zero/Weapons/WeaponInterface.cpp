@@ -3,7 +3,6 @@
 #include "WeaponInterface.h"
 
 
-
 void IWeaponInterface::FireRequest(bool bStatus)
 {
 }

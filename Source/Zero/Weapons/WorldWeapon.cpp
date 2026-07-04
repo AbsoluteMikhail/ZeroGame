@@ -1,14 +1,14 @@
 // Copyright (c) 2026 Absolute Mikhail
 
-
 #include "WorldWeapon.h"
 
 #include "Components/BoxComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "Characters/ZeroCharacter.h"
 #include "Characters/Components/InventoryComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
-
 
 
 AWorldWeapon::AWorldWeapon()
@@ -70,7 +70,10 @@ void AWorldWeapon::SetNewWeapon_OnServer_Implementation(AActor* OtherActor)
 
 			SetActive(false);
 
-			GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &AWorldWeapon::Reload, 60.0f, false);
+			if (UWorld* World = GetWorld())
+			{
+				World->GetTimerManager().SetTimer(ReloadTimer, this, &AWorldWeapon::Reload, 60.0f, false);
+			}
 		}
 	}
 }

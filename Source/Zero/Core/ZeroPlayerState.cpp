@@ -1,9 +1,7 @@
 // Copyright (c) 2026 Absolute Mikhail
 
-
 #include "ZeroPlayerState.h"
 #include "Net/UnrealNetwork.h"
-
 
 
 AZeroPlayerState::AZeroPlayerState()

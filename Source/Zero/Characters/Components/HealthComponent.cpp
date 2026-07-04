@@ -5,7 +5,6 @@
 #include "Net/UnrealNetwork.h"
 
 
-
 UHealthComponent::UHealthComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
@@ -23,15 +22,10 @@ void UHealthComponent::ApplyHealthChange(float ChangeValue)
 {
 	if (bAliveStatus)
 	{
-		Health += ChangeValue;
+		Health = FMath::Clamp(Health + ChangeValue, 0.0f, 100.0f);
 
 		// Логирование https://www.chrismccole.com/blog/logging-in-ue4-cpp
 		//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 999.f, FColor::Red, FString::Printf(TEXT("Health %f"), ChangeValue));
-
-		if (Health > 100.0f)
-		{
-			Health = 100.0f;
-		}
 		
 		OnHealthChange.Broadcast(Health, ChangeValue);
 

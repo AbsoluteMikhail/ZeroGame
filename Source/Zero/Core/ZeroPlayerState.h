@@ -9,6 +9,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FScoreChanged, int32, CurrentScore);
 
+
 UCLASS()
 class ZERO_API AZeroPlayerState : public APlayerState
 {

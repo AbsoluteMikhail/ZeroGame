@@ -81,6 +81,22 @@ echo [INFO] Using UnrealBuildTool:
 echo %UBT_PATH%
 echo.
 
+set "UE_DOTNET_ROOT="
+for /f "delims=" %%D in ('dir /b /ad "%UE_PATH%\Engine\Binaries\ThirdParty\DotNet" 2^>nul') do (
+    if exist "%UE_PATH%\Engine\Binaries\ThirdParty\DotNet\%%D\win-x64\dotnet.exe" (
+        set "UE_DOTNET_ROOT=%UE_PATH%\Engine\Binaries\ThirdParty\DotNet\%%D\win-x64"
+    )
+)
+
+if defined UE_DOTNET_ROOT (
+    set "DOTNET_ROOT=%UE_DOTNET_ROOT%"
+    set "DOTNET_MULTILEVEL_LOOKUP=0"
+    set "PATH=%UE_DOTNET_ROOT%;%PATH%"
+    echo [INFO] Using bundled .NET:
+    echo %UE_DOTNET_ROOT%
+    echo.
+)
+
 call "%UBT_PATH%" %PROJECT_NAME%Editor %BUILD_PLATFORM% %BUILD_CONFIG% -Project="%cd%\%UPROJECT%" -WaitMutex -NoHotReloadFromIDE
 if errorlevel 1 goto :fail
 

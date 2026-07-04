@@ -1,9 +1,9 @@
 // Copyright (c) 2026 Absolute Mikhail
 
-
 #include "ZeroGameInstance.h"
-#include "GameFramework/GameUserSettings.h"
 
+#include "Engine/Engine.h"
+#include "GameFramework/GameUserSettings.h"
 
 
 UZeroGameInstance::UZeroGameInstance(const FObjectInitializer& ObjectInitializer)
@@ -17,9 +17,16 @@ void UZeroGameInstance::Init()
 	Super::Init();
 
 	// Пример настройки и ограничение FPS через консольную команду
-	GEngine->GameUserSettings->SetVSyncEnabled(true);
-	//GEngine->GameUserSettings->SetFullscreenMode(EWindowMode::WindowedFullscreen);
-	GEngine->GameUserSettings->ApplySettings(true);
-	GEngine->GameUserSettings->SaveSettings();
-	GEngine->Exec(GetWorld(), TEXT("t.MaxFPS 60"));
+	if (UGameUserSettings* GameUserSettings = UGameUserSettings::GetGameUserSettings())
+	{
+		GameUserSettings->SetVSyncEnabled(true);
+		//GameUserSettings->SetFullscreenMode(EWindowMode::WindowedFullscreen);
+		GameUserSettings->ApplySettings(true);
+		GameUserSettings->SaveSettings();
+	}
+
+	if (GEngine)
+	{
+		GEngine->Exec(GetWorld(), TEXT("t.MaxFPS 60"));
+	}
 }

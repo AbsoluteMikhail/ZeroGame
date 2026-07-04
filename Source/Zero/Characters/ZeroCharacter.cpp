@@ -1,19 +1,22 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2026 Absolute Mikhail
 
 #include "ZeroCharacter.h"
 
-#include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/Controller.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/InventoryComponent.h"
 #include "Components/HealthComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Zero/Core/ZeroPlayerState.h"
-
+#include "Zero/Weapons/WeaponBase.h"
 
 
 AZeroCharacter::AZeroCharacter()

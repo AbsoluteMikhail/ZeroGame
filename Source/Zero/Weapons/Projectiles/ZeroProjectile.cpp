@@ -1,13 +1,13 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2026 Absolute Mikhail
 
 #include "ZeroProjectile.h"
 
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "WorldActor/ExplosionActor.h"
 #include "Characters/ZeroCharacter.h"
-
 
 
 AZeroProjectile::AZeroProjectile() 
@@ -44,12 +44,18 @@ void AZeroProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 		return;
 	}
 
+	if (!OtherActor || OtherActor == this || OtherActor == GetOwner())
+	{
+		return;
+	}
+
 	if (Cast<AZeroCharacter>(OtherActor) || Cast<AExplosionActor>(OtherActor))
 	{
 		const auto OwnerPlayer = Cast<AZeroCharacter>(GetOwner());
 		const auto PlayerController = OwnerPlayer ? Cast<APlayerController>(OwnerPlayer->GetController()) : nullptr;
+		const FVector HitDirection = GetVelocity().GetSafeNormal();
 		
-		UGameplayStatics::ApplyPointDamage(OtherActor, Damage, Hit.TraceStart,Hit, PlayerController,GetOwner(),NULL);
+		UGameplayStatics::ApplyPointDamage(OtherActor, Damage, HitDirection, Hit, PlayerController, GetOwner(), nullptr);
 		Destroy();
 		return;
 	}

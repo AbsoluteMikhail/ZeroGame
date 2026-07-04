@@ -8,7 +8,6 @@
 #include "ZeroGameInstance.generated.h"
 
 
-
 UCLASS()
 class ZERO_API UZeroGameInstance : public UAdvancedFriendsGameInstance // Наследуюсь от GameInstance из плагина AdvancedSessions
 {
