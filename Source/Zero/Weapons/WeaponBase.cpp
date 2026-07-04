@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026 Absolute Mikhail
 
 #include "WeaponBase.h"
 
@@ -128,7 +128,18 @@ void AWeaponBase::FireTick(float DeltaTime)
 void AWeaponBase::Fire()
 {
 	const auto OwnerPlayer = Cast<AZeroCharacter>(GetOwner());
+	if (!OwnerPlayer)
+	{
+		WeaponFiring = false;
+		return;
+	}
+
 	const auto PlayerController = Cast<APlayerController>(OwnerPlayer->GetController());
+	if (!PlayerController)
+	{
+		WeaponFiring = false;
+		return;
+	}
 
 	FireTimer = RateOfFire;
 	FireStartPoint = OwnerPlayer->GetFireLocation();
@@ -141,7 +152,7 @@ void AWeaponBase::Fire()
 		FHitResult Hit;
 		TArray<AActor*> Actors;
 		Actors.Add(GetOwner());
-		EDrawDebugTrace::Type DebugTrace = EDrawDebugTrace::ForDuration;
+		EDrawDebugTrace::Type DebugTrace = EDrawDebugTrace::None;
 		
 		if (ProjectileClass)
 		{
@@ -152,15 +163,17 @@ void AWeaponBase::Fire()
 			const FVector SpawnLocation = SkeletalMeshWeapon_FP->GetComponentLocation() + SpawnRotation.RotateVector(MuzzleOffset);
 			*/
 			const FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(FireForwardVector);
-			const FVector SpawnLocation = SkeletalMeshWeapon_FP->GetComponentLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+			const FVector WeaponLocation = SkeletalMeshWeapon_FP ? SkeletalMeshWeapon_FP->GetComponentLocation() : FireStartPoint;
+			const FVector SpawnLocation = WeaponLocation + SpawnRotation.RotateVector(MuzzleOffset);
 
 			FActorSpawnParameters ActorSpawnParams;
+			ActorSpawnParams.Owner = OwnerPlayer;
+			ActorSpawnParams.Instigator = OwnerPlayer;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 			if (const auto Projectile = World->SpawnActor<AZeroProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams))
 			{
 				Projectile->SetDamage(this->Damage);
-				Projectile->SetOwner(OwnerPlayer);
 			}
 			
 			FireEffect_Multicast(FVector(ForceInitToZero), FVector(ForceInitToZero));
@@ -177,8 +190,10 @@ void AWeaponBase::Fire()
 				// для физики трупа нужен мультикаст
 				Hit.GetComponent()->AddImpulseAtLocation(FireForwardVector * 1000000,Hit.Location, Hit.BoneName);
 			}
-			else
+			else if (Hit.GetActor())
+			{
 				UGameplayStatics::ApplyPointDamage(Hit.GetActor(), Damage, Hit.TraceStart, Hit, PlayerController,OwnerPlayer,NULL);	
+			}
 		}
 	}
 }

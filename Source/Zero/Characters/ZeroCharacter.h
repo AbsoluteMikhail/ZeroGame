@@ -65,6 +65,7 @@ protected:
 	void InputAttackPressed(const FInputActionValue& Value);
 	void InputAttackReleased(const FInputActionValue& Value);
 	void InputExitPressed(const FInputActionValue& Value);
+	void SetAimData(const FVector& CameraLocation, const FRotator& ControlRotation);
 	
 	UFUNCTION()
 	void CharDead();
@@ -104,4 +105,6 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ChangeFireStatus_OnServer(const bool bNewStatus);
+	UFUNCTION(Server, Unreliable)
+	void UpdateAim_OnServer(FVector CameraLocation, FRotator ControlRotation);
 };

@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026 Absolute Mikhail
 
 #pragma once
 
@@ -29,6 +29,7 @@ private:
 	URotatingMovementComponent* MovementComponent = nullptr;
 
 	FTimerHandle ReloadTimer;
+	UPROPERTY(ReplicatedUsing = OnRep_Active)
 	bool bActive = true;
 	
 public:
@@ -36,13 +37,16 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(Server, Reliable)
 	void SetNewWeapon_OnServer(AActor* OtherActor);
-	UFUNCTION(NetMulticast, Unreliable)
-	void Reload_Multicast();
-	UFUNCTION(NetMulticast, Unreliable)
-	void Hide_Multicast();
+	UFUNCTION()
+	void OnRep_Active();
+
+	void SetActive(bool bNewActive);
+	void Reload();
+	void UpdateActiveState();
 	
 public:
 	UPROPERTY(EditInstanceOnly)

@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026 Absolute Mikhail
 
 #pragma once
 
@@ -28,6 +28,7 @@ private:
 	URadialForceComponent* RadialForce = nullptr;
 
 	FTimerHandle ReloadTimer;
+	UPROPERTY(ReplicatedUsing = OnRep_Active)
 	bool bActive = true;
 	
 public:
@@ -36,13 +37,17 @@ public:
 
 protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	UFUNCTION(Server, Reliable)
-	void ExplosionEffect_OnServer();
 	UFUNCTION(NetMulticast, Unreliable)
 	void ExplosionEffect_Multicast();
-	UFUNCTION(NetMulticast, Unreliable)
-	void Reload_Multicast();
+	UFUNCTION()
+	void OnRep_Active();
+
+	void Explode();
+	void Reload();
+	void SetActive(bool bNewActive);
+	void UpdateActiveState();
 	
 public:
 	UPROPERTY(EditInstanceOnly, Category = "Settings")

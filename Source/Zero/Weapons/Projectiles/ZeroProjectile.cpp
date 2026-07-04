@@ -39,13 +39,19 @@ AZeroProjectile::AZeroProjectile()
 
 void AZeroProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+
 	if (Cast<AZeroCharacter>(OtherActor) || Cast<AExplosionActor>(OtherActor))
 	{
 		const auto OwnerPlayer = Cast<AZeroCharacter>(GetOwner());
-		const auto PlayerController = Cast<APlayerController>(OwnerPlayer->GetController());
+		const auto PlayerController = OwnerPlayer ? Cast<APlayerController>(OwnerPlayer->GetController()) : nullptr;
 		
-		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), Damage, Hit.TraceStart,Hit, PlayerController,GetOwner(),NULL);
+		UGameplayStatics::ApplyPointDamage(OtherActor, Damage, Hit.TraceStart,Hit, PlayerController,GetOwner(),NULL);
 		Destroy();
+		return;
 	}
 	
 	if ((OtherComp != nullptr) && OtherComp->IsSimulatingPhysics())

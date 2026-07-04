@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026 Absolute Mikhail
 
 
 #include "WorldWeapon.h"
@@ -7,6 +7,7 @@
 #include "GameFramework/RotatingMovementComponent.h"
 #include "Characters/ZeroCharacter.h"
 #include "Characters/Components/InventoryComponent.h"
+#include "Net/UnrealNetwork.h"
 
 
 
@@ -67,27 +68,40 @@ void AWorldWeapon::SetNewWeapon_OnServer_Implementation(AActor* OtherActor)
 		{
 			Inventory->SetNewWeapon_OnServer(SpawnWeaponClass);
 
-			bActive = false;
-			Hide_Multicast();
+			SetActive(false);
 
-			GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &AWorldWeapon::Reload_Multicast, 60.0f, false);
+			GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &AWorldWeapon::Reload, 60.0f, false);
 		}
 	}
 }
 
-void AWorldWeapon::Hide_Multicast_Implementation()
+void AWorldWeapon::OnRep_Active()
+{
+	UpdateActiveState();
+}
+
+void AWorldWeapon::SetActive(bool bNewActive)
+{
+	bActive = bNewActive;
+	UpdateActiveState();
+}
+
+void AWorldWeapon::Reload()
+{
+	SetActive(true);
+}
+
+void AWorldWeapon::UpdateActiveState()
 {
 	if (StaticMesh)
 	{
-		StaticMesh->SetHiddenInGame(true);	
+		StaticMesh->SetHiddenInGame(!bActive);
 	}
 }
 
-void AWorldWeapon::Reload_Multicast_Implementation()
+void AWorldWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	bActive = true;
-	if (StaticMesh)
-	{
-		StaticMesh->SetHiddenInGame(false);	
-	}
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWorldWeapon, bActive);
 }

@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026 Absolute Mikhail
 
 #pragma once
 
@@ -29,10 +29,15 @@ public:
 	FOnDead OnDead;
 	
 protected:
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_Health)
 	float Health = 100.0f;
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_AliveStatus)
 	bool bAliveStatus = true;
+
+	UFUNCTION()
+	void OnRep_Health(float OldHealth);
+	UFUNCTION()
+	void OnRep_AliveStatus(bool bOldAliveStatus);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
@@ -43,9 +48,5 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Health")
 	virtual void ChangeHealthValue_OnServer(float ChangeValue);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void HealthChangeEvent_Multicast(float newHealth, float value);
-	
-	UFUNCTION(NetMulticast, Reliable)
-	void DeadEvent_Multicast();
+	void ApplyHealthChange(float ChangeValue);
 };

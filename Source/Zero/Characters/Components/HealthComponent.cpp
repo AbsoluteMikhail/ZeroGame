@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026 Absolute Mikhail
 
 #include "HealthComponent.h"
 
@@ -16,6 +16,11 @@ UHealthComponent::UHealthComponent()
 
 void UHealthComponent::ChangeHealthValue_OnServer_Implementation(float ChangeValue)
 {
+	ApplyHealthChange(ChangeValue);
+}
+
+void UHealthComponent::ApplyHealthChange(float ChangeValue)
+{
 	if (bAliveStatus)
 	{
 		Health += ChangeValue;
@@ -28,24 +33,27 @@ void UHealthComponent::ChangeHealthValue_OnServer_Implementation(float ChangeVal
 			Health = 100.0f;
 		}
 		
-		HealthChangeEvent_Multicast(Health, ChangeValue);
+		OnHealthChange.Broadcast(Health, ChangeValue);
 
 		if (Health <= 0.0f)
 		{
 			bAliveStatus = false;
-			DeadEvent_Multicast();
+			OnDead.Broadcast();
 		}
 	}
 }
 
-void UHealthComponent::HealthChangeEvent_Multicast_Implementation(float newHealth, float value)
+void UHealthComponent::OnRep_Health(float OldHealth)
 {
-	OnHealthChange.Broadcast(newHealth, value);
+	OnHealthChange.Broadcast(Health, Health - OldHealth);
 }
 
-void UHealthComponent::DeadEvent_Multicast_Implementation()
+void UHealthComponent::OnRep_AliveStatus(bool bOldAliveStatus)
 {
-	OnDead.Broadcast();
+	if (bOldAliveStatus && !bAliveStatus)
+	{
+		OnDead.Broadcast();
+	}
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

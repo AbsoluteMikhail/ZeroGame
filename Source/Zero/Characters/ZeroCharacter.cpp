@@ -75,9 +75,15 @@ void AZeroCharacter::Tick(float DeltaTime)
 	
 	if (GetController() && (IsLocallyControlled() || HasAuthority()))
 	{
-		CameraLocation_Rep = FirstPersonCamera->GetComponentLocation();
-		ControlRotation_Rep = GetController()->GetControlRotation();
-		CameraForwardVector_Rep = UKismetMathLibrary::GetForwardVector(ControlRotation_Rep);
+		const FVector CameraLocation = FirstPersonCamera->GetComponentLocation();
+		const FRotator ControlRotation = GetController()->GetControlRotation();
+
+		SetAimData(CameraLocation, ControlRotation);
+
+		if (IsLocallyControlled() && !HasAuthority())
+		{
+			UpdateAim_OnServer(CameraLocation, ControlRotation);
+		}
 	}
 }
 
@@ -146,6 +152,13 @@ void AZeroCharacter::InputExitPressed(const FInputActionValue& Value)
 	UGameplayStatics::OpenLevel(GetWorld(), "MENU", true, "");
 }
 
+void AZeroCharacter::SetAimData(const FVector& CameraLocation, const FRotator& ControlRotation)
+{
+	CameraLocation_Rep = CameraLocation;
+	ControlRotation_Rep = ControlRotation;
+	CameraForwardVector_Rep = UKismetMathLibrary::GetForwardVector(ControlRotation_Rep);
+}
+
 float AZeroCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -154,7 +167,7 @@ float AZeroCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	{
 		if (HealthComponent->GetAliveStatus())
 		{
-			HealthComponent->ChangeHealthValue_OnServer(-DamageAmount);
+			HealthComponent->ApplyHealthChange(-DamageAmount);
 
 			if (!HealthComponent->GetAliveStatus())
 			{
@@ -219,9 +232,15 @@ void AZeroCharacter::ChangeFireStatus_OnServer_Implementation(const bool bNewSta
 	{
 		InventoryComponent->GetCurrentWeapon()->FireRequest(bNewStatus);
 	}
-	else if (HasAuthority() && InventoryComponent && InventoryComponent->GetCurrentWeapon())
+}
+
+void AZeroCharacter::UpdateAim_OnServer_Implementation(FVector CameraLocation, FRotator ControlRotation)
+{
+	constexpr float MaxCameraDistance = 300.0f;
+
+	if (FVector::DistSquared(CameraLocation, GetActorLocation()) <= FMath::Square(MaxCameraDistance))
 	{
-		InventoryComponent->GetCurrentWeapon()->FireRequest(bNewStatus);
+		SetAimData(CameraLocation, ControlRotation);
 	}
 }
 

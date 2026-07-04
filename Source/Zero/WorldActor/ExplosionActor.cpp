@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2026 Absolute Mikhail
 
 
 #include "ExplosionActor.h"
@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
 
@@ -43,7 +44,7 @@ AExplosionActor::AExplosionActor()
 float AExplosionActor::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	AActor* DamageCauser)
 {
-	if (bActive)
+	if (HasAuthority() && bActive)
 	{
 		TArray<AActor*> OverlappingActors;
 		CollisionSphere->GetOverlappingActors(OverlappingActors, ACharacter::StaticClass());
@@ -56,31 +57,22 @@ float AExplosionActor::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 			}
 		}
 		
-		if (HasAuthority())
-		{
-			ExplosionEffect_OnServer();
-		}
+		Explode();
 	}
 	
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
-void AExplosionActor::ExplosionEffect_OnServer_Implementation()
+void AExplosionActor::Explode()
 {
-	bActive = false;
-	GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &AExplosionActor::Reload_Multicast, 10.0f, false);
+	SetActive(false);
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &AExplosionActor::Reload, 10.0f, false);
 	
 	ExplosionEffect_Multicast();
 }
 
 void AExplosionActor::ExplosionEffect_Multicast_Implementation()
 {
-	if (StaticMesh)
-	{
-		StaticMesh->SetCollisionProfileName(TEXT("NoCollision"));
-		StaticMesh->SetHiddenInGame(true);
-	}
-	
 	if (FxFire)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FxFire, GetTransform());
@@ -97,13 +89,34 @@ void AExplosionActor::ExplosionEffect_Multicast_Implementation()
 	}
 }
 
-void AExplosionActor::Reload_Multicast_Implementation()
+void AExplosionActor::OnRep_Active()
 {
-	bActive = true;
-	
+	UpdateActiveState();
+}
+
+void AExplosionActor::Reload()
+{
+	SetActive(true);
+}
+
+void AExplosionActor::SetActive(bool bNewActive)
+{
+	bActive = bNewActive;
+	UpdateActiveState();
+}
+
+void AExplosionActor::UpdateActiveState()
+{
 	if (StaticMesh)
 	{
-		StaticMesh->SetCollisionProfileName(TEXT("BlockAllDynamic"));
-		StaticMesh->SetHiddenInGame(false);
+		StaticMesh->SetCollisionProfileName(bActive ? TEXT("BlockAllDynamic") : TEXT("NoCollision"));
+		StaticMesh->SetHiddenInGame(!bActive);
 	}
+}
+
+void AExplosionActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AExplosionActor, bActive);
 }
