@@ -13,7 +13,7 @@
 *.DS_Store
 *.idea
 *.vsconfig
-Scripts/local_config.ini
+Scripts/Batch/local_config.ini
 
 ################################################################
 # Защита от мусора который пихают в ассет паки
