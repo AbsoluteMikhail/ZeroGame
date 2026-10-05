@@ -7,7 +7,7 @@
 <br/>(см. теги на git для выбора коммита с нужной версией)
 <br/>В каждой версии АБСОЛЮТНО точно работает соединение через стим, я проверял =)
 
-<br/>Начиная с версии 5.6+ нужно перейти на [SteamSockets](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-steam-sockets-in-unreal-engine)
+<br/>Начиная с версии 5.6+ нужно перейти на [SteamSockets](https://dev.epicgames.com/documentation/unreal-engine/using-steam-sockets-in-unreal-engine)
 <br/>Используется плагин [AdvancedSteamSessions](https://vreue4.com/advanced-sessions-binaries)
 <br/>*(обновляя движок не забуть обновить плагин в папке проекта)*
 
